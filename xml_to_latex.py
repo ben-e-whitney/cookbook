@@ -1,71 +1,78 @@
 import xml.etree.ElementTree as ET
-import time
-xml_name = 'recipebook.xml'
-tex_name = 'cookbook.tex'
 
-def cookbook_treatment(cookbook):
-    for section in root:
-        section_treatment(section)
-    return
+XML_NAME = 'recipebook.xml'
+TEX_NAME = 'cookbook.tex'
 
-def section_treatment(section):
+def None_to_empty(string):
+    #TODO: test `input` directly?
+    return '' if string is None else string
+
+def treat_cookbook(cookbook, cookbook_file):
+    for section in cookbook:
+        treat_section(section, cookbook_file)
+    return None
+
+def treat_section(section, cookbook_file):
     section_title = section.find('title').text
-    file.write('\n\chapter{'+section_title+'}\n')
+    cookbook_file.write('\n\chapter{{sti}}\n'.format(sti=section_title))
     for recipe in section.iter('recipe'):
-        recipe_treatment(recipe)
-    return
+        treat_recipe(recipe, cookbook_file)
+    return None
 
-def recipe_treatment(recipe):
+def treat_recipe(recipe, cookbook_file):
     recipe_title = recipe.find('title').text
-    file.write('\section*{'+recipe_title+'}\n');
+    cookbook_file.write('\section*{{rti}}\n'.format(rti=recipe_title))
+    treaters = {
+        'ingredientlist': treat_ingredientlist,
+        'preparation': treat_preparation,
+        'recipeinfo': treat_recipeinfo
+    }
     for element in recipe:
         #title has already been taken care of.
-        tag = element.tag
-        if tag == 'ingredientlist':
-            ingredientlist_treatment(element)
-        elif tag == 'preparation':
-            preparation_treatment(element)
-        elif tag == 'recipeinfo':
-            recipeinfo_treatment(element)
-    return
+        #TODO: use polymorphism here? Doesn't seem to merit a class.
+        try:
+            treaters[element.tag](element, cookbook_file)
+        except KeyError:
+            raise KeyError('Unrecognized element tag {tag}.'.format(
+                tag=element.tag))
+    return None
 
-def ingredientlist_treatment(ingredientlist):
-    file.write('\\begin{itemize}\n')
+def treat_ingredientlist(ingredientlist, cookbook_file):
+    cookbook_file.write('\\begin{itemize}\n')
+    #TODO: here and above, figure out what object to use to preserve order.
+    ingred_keys = ('quantity', 'unit', 'fooditem', 'prep')
     for ingred in ingredientlist:
-        quantity = ingred.find('quantity').text
-        unit     = ingred.find('unit').text
-        fooditem = ingred.find('fooditem').text
-        foodprep = ingred.find('foodprep').text
-        foodprep = foodprep if (foodprep == None) else '('+foodprep+')'
-        file.write('\item '+strNone(quantity)+strNone(unit)\
-                +strNone(fooditem)+strNone(foodprep)+'\n')
-    file.write('\\end{itemize}\n')
-    return
+        ingred_dict = {key: ingred.find(key).text for key in ingred_keys}
+        #TODO: test `foodprep` directly?
+        ingred_dict['foodprep'] = ingred_dict['foodprep'] if ingred_dict[
+            'foodprep'] is None else '({fpr})'.format(fpr=ingred_dict[
+            'foodprep'])
+        cookbook_file.write('\item {con}\n'.format(con=' '.join(
+            None_to_empty(ingred_dict[key]) for key in ingred_keys)))
+    cookbook_file.write('\\end{itemize}\n')
+    return None
 
-def strNone(input):
-    if input == None:
-        return ''
-    else:
-        # Extra spaces don't hurt in TeX so I'll just add them willy-nilly.
-        return ' '+input+' '
+def treat_preparation(element, cookbook_file):
+    cookbook_file.write('{elt}\n'.format(elt=element.text))
+    return None
 
-def preparation_treatment(element):
-    file.write(element.text+'\n')
-    return
+def treat_recipeinfo(info, cookbook_file):
+    keys = ('author', 'blurb', 'preptime', 'yield')
+    pieces = {key: info.find(key).text for key in keys}
+    #TODO: test the author directly?
+    pieces['author'] = (pieces['author'] if pieces['author'] is None else
+        'Author: {aut}.'.format(aut=pieces['author']))
+    # Awkward way of maintaining order of the pieces.
+    cookbook_file.write('\n'.join(pieces[key] for key in keys))
+    return None
 
-def recipeinfo_treatment(info):
-    author    = info.find('author').text
-    author    = author if (author == None) else 'Author: '+author+'.'
-    blurb     = info.find('blurb').text
-    preptime  = info.find('preptime').text
-    # Different variable name because 'yield' is a Python keyword.
-    the_yield = info.find('yield').text
-    file.write(strNone(author)+strNone(blurb)+strNone(preptime)+\
-            strNone(the_yield)+'\n')
-    return
+def main():
+    cookbook_file = open(TEX_NAME, 'w')
+    tree = ET.parse(XML_NAME)
+    root = tree.getroot()
+    treat_cookbook(root, cookbook_file)
+    cookbook_file.close()
+    return None
 
-file = open(tex_name,'w')
-tree = ET.parse(xml_name)
-root = tree.getroot()
-cookbook_treatment(root)
-file.close()
+if __name__ == '__main__':
+    main()

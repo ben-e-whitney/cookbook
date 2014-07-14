@@ -1,0 +1,37 @@
+% For XeLaTeX
+%\RequirePackage{fontspec,xltxtra,xunicode}
+\RequirePackage{fontspec,xunicode}
+\RequirePackage{fancyhdr,lastpage}
+
+\RequirePackage[margin=3cm]{geometry}
+\RequirePackage{graphicx,nicefrac,multicol}
+\RequirePackage[parfill]{parskip}%new paragraphs are marked with a blank line and no indentation
+
+\fancyhead[LE,RO]{Page \thepage~of \pageref{LastPage}}
+\fancyhead[RE,LO]{\rightmark}
+\fancyfoot[LE,RO]{\leftmark}
+\fancyfoot[CE,CO]{}
+
+%\renewcommand{\chaptername}{}
+%\renewcommand{\thechapter}{}
+%\renewcommand{\chaptermark}[1]{\markboth{\MakeUppercase{#1}}{}}%removes period from chapter (section?) numbering
+%\renewcommand{\sectionmark}[1]{\markboth{\MakeUppercase{#1}}{}}%removes period from chapter (section?) numbering
+
+%\renewcommand{\t}{tsp.}
+%\newcommand{\T}{tbsp.}
+%\newcommand{\C}{C}
+%\newcommand{\oz}{oz.}
+%\newcommand{\floz}{fl.~oz.}
+%\newcommand{\lb}{lb.}
+%\newcommand{\pt}{pint}
+%\newcommand{\nf}{\nicefrac}
+%\renewcommand{\deg}{\(^{\circ}\)}%\textsuperscript or like?
+%\newcommand{\gal}{gal.}
+%\newcommand{\mL}{mL}
+%\newcommand{\g}{g}
+
+%\newcommand{\half}{\nf{1}{2}}
+%\newcommand{\third}{\nf{1}{3}}
+%\newcommand{\twothirds}{\nf{2}{3}}
+%\newcommand{\quarter}{\nf{1}{4}}
+%\newcommand{\threequarters}{\nf{3}{4}}

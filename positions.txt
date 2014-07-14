@@ -1,0 +1,6 @@
+blurb right-aligned, under titled, above ingredients
+author right-aligned, bottom right, under instructions 
+preptime bottom-left, under instructions
+yield new line of instructions
+
+package flushright
